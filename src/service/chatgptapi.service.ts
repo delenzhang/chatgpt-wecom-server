@@ -50,6 +50,7 @@ export class ChatGPTAPIService {
       throw  new HttpException(`[parentMessageId]:${options.parentMessageId}  [prompt]:"${prompt}", 请求三次报错`, 500);
     }
     try {
+      this.logger.log(`start use ChatGPTAPI fech  chatgpt 获取内容 [parentMessageId]: ${parentMessageId}...`);
       const res = await this.api.sendMessage(prompt, {
         parentMessageId,
         onProgress: (partialResponse) => {
@@ -57,13 +58,8 @@ export class ChatGPTAPIService {
         },
         timeoutMs: 3*1000
       });
-      this.logger.log(`chatgpt 获取内容 ${res.id}, chatgpt detail >>>`, res.detail);
-      const machineResponse = res.text;
-      return {
-        response: res,
-        content: machineResponse,
-        status: 200,
-      };
+      this.logger.log(`end use ChatGPTAPI fech ${prompt} chatgpt 获取内容 ${res.id}`);
+      return res;
     } catch (error) {
       this.logger.error(`chatgpt sendMessage error`, error)
       const data = await this.sendMessage({prompt, options}, retry+1)
