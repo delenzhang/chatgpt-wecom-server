@@ -58,20 +58,12 @@ export class ChatGPTAPIService {
         },
         timeoutMs: 3*1000
       });
-      this.logger.log(`end use ChatGPTAPI fech ${prompt} chatgpt 获取内容 ${res.id}`);
+      this.logger.log(`end use ChatGPTAPI fech chatgpt 获取内容 ${res.id}`);
       return res;
     } catch (error) {
       this.logger.error(`chatgpt sendMessage error`, error)
       const data = await this.sendMessage({prompt, options}, retry+1)
       return data;
-      
-      // this.logger.error('请求出错');
-      // this.logger.error(error);
-      // return {
-      //   response: error,
-      //   content: '请求chatgpt错误',
-      //   status: 500
-      // };
     }
   }
 }
