@@ -13,7 +13,7 @@ async function bootstrap() {
   // app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalInterceptors(new RequestInterceptor());
   await app.listen(port);
-  console.log('server run in' + port)
+  console.log('server run in port: ' + port)
 
 }
 bootstrap();
