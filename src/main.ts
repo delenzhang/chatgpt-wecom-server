@@ -4,7 +4,7 @@ import { TransformInterceptor } from './core/interceptor/transform.interceptor.j
 import { HttpExceptionFilter } from './core/filter/http-exception.filter.js';
 import { RequestInterceptor } from './core/interceptor/request.interceptor.js';
 
-const port = 80
+const port = 8080
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
