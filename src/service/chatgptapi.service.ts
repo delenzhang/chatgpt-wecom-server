@@ -65,9 +65,23 @@ export class ChatGPTAPIService {
       this.logger.log(`end use ChatGPTAPI fech chatgpt 获取内容 ${res.id}`);
       return res;
     } catch (error) {
-      this.logger.error(`chatgpt sendMessage error`, error)
+      this.logger.error(`chatgpt sendMessage error`, typeof error, error)
+      switch(this.handleGptSendMessageError(error)) {
+         case 401:
+          break;
+         default:
+          const data = await this.sendMessage({prompt, options}, retry+1)
+          return data;
+      }
+      
       const data = await this.sendMessage({prompt, options}, retry+1)
       return data;
     }
+  }
+  handleGptSendMessageError(err:string) {
+     if (err.includes('ChatGPT error 401')) {
+        return 401;
+     }
+     return 200;
   }
 }
