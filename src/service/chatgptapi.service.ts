@@ -3,9 +3,9 @@
  * 与chatgpt.service不同
  */
 
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpException, Injectable, Logger } from '@nestjs/common';
 import { ChatGPTAPI, ChatMessage } from 'chatgpt';
-import { setupProxy } from '../service/utils.js';
+import { setupProxy } from './utils.js';
 
 interface MessageOptions {
   prompt: string;
@@ -44,15 +44,18 @@ export class ChatGPTAPIService {
       ...options,
     });
   }
-  async sendMessage({ prompt = '', options }: MessageOptions, retry: Number = 0) {
+  async sendMessage({ prompt = '', options }: MessageOptions, retry: number = 0) {
     const { parentMessageId = '', process } = options || {};
+    if (retry > 3){
+      throw  new HttpException(`[parentMessageId]:${options.parentMessageId}  [prompt]:"${prompt}", 请求三次报错`, 500);
+    }
     try {
       const res = await this.api.sendMessage(prompt, {
         parentMessageId,
         onProgress: (partialResponse) => {
           process?.(partialResponse);
         },
-        timeoutMs: 30*1000
+        timeoutMs: 2.5*1000
       });
       this.logger.log(`chatgpt 获取内容 ${res.id}, chatgpt detail >>>`, res.detail);
       const machineResponse = res.text;
@@ -63,7 +66,7 @@ export class ChatGPTAPIService {
       };
     } catch (error) {
 
-      const data = await this.sendMessage({prompt, options})
+      const data = await this.sendMessage({prompt, options}, retry+1)
       return data;
       
       // this.logger.error('请求出错');
