@@ -38,6 +38,7 @@ export class ChatGPTAPIService {
       // fetch: null,
     };
     // setupProxy(options);
+    this.logger.log('current OPENAI_API_KEY is ', process.env.OPENAI_API_KEY)
     this.api = new ChatGPTAPI({
       apiKey: process.env.OPENAI_API_KEY,
       debug: false,
