@@ -5,7 +5,7 @@
 
 import { HttpException, Injectable, Logger } from '@nestjs/common';
 import { ChatGPTAPI, ChatMessage } from 'chatgpt';
-import { setupProxy } from './utils.js';
+// import { setupProxy } from './utils.js';
 
 interface MessageOptions {
   prompt: string;
@@ -37,7 +37,7 @@ export class ChatGPTAPIService {
     const options = {
       fetch: null,
     };
-    setupProxy(options);
+    // setupProxy(options);
     this.api = new ChatGPTAPI({
       apiKey: process.env.OPENAI_API_KEY,
       debug: false,
@@ -55,7 +55,7 @@ export class ChatGPTAPIService {
         onProgress: (partialResponse) => {
           process?.(partialResponse);
         },
-        timeoutMs: 2.5*1000
+        timeoutMs: 3*1000
       });
       this.logger.log(`chatgpt 获取内容 ${res.id}, chatgpt detail >>>`, res.detail);
       const machineResponse = res.text;
@@ -65,7 +65,7 @@ export class ChatGPTAPIService {
         status: 200,
       };
     } catch (error) {
-
+      this.logger.error(`chatgpt sendMessage error`, error)
       const data = await this.sendMessage({prompt, options}, retry+1)
       return data;
       
