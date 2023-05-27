@@ -5,7 +5,7 @@
 
 import { HttpException, Injectable, Logger } from '@nestjs/common';
 import { ChatGPTAPI, ChatMessage } from 'chatgpt';
-import { setupProxy } from './utils.js';
+// import { setupProxy } from './utils.js';
 
 interface MessageOptions {
   prompt: string;
@@ -35,9 +35,9 @@ export class ChatGPTAPIService {
 
   async initAPI() {
     const options = {
-      fetch: null,
+      // fetch: null,
     };
-    setupProxy(options);
+    // setupProxy(options);
     this.api = new ChatGPTAPI({
       apiKey: process.env.OPENAI_API_KEY,
       debug: false,
