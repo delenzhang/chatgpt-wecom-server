@@ -26,7 +26,7 @@ interface MessageOptions {
 @Injectable()
 export class ChatGPTAPIService {
   api: ChatGPTAPI;
-
+  OPENAI_API_KEY: string
   private readonly logger = new Logger(ChatGPTAPIService.name);
 
   async onModuleInit() {
@@ -39,6 +39,7 @@ export class ChatGPTAPIService {
     };
     // setupProxy(options);
     this.logger.log('current OPENAI_API_KEY is ', process.env.OPENAI_API_KEY)
+    this.OPENAI_API_KEY = process.env.OPENAI_API_KEY
     this.api = new ChatGPTAPI({
       apiKey: process.env.OPENAI_API_KEY,
       debug: false,
@@ -48,6 +49,7 @@ export class ChatGPTAPIService {
   async sendMessage({ prompt = '', options }: MessageOptions, retry: number = 0) {
     const { parentMessageId = '', process } = options || {};
     if (retry > 3){
+      this.logger.log(`error OPENAI_API_KEY:  ${this.OPENAI_API_KEY}`);
       return {
         code: 50001,
         msg: `[parentMessageId]:${options.parentMessageId}  [prompt]:"${prompt}", 请求三次报错`
