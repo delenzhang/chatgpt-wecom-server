@@ -4,6 +4,8 @@ services:
     image: chatgpt-wecom-server
     ports:
       - "8080:8080"
+    env_file:
+      - .env
     # environment:
       # # API 的 Secret key
       # - OPENAI_API_KEY=XXX

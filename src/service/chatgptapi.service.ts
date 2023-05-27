@@ -47,7 +47,10 @@ export class ChatGPTAPIService {
   async sendMessage({ prompt = '', options }: MessageOptions, retry: number = 0) {
     const { parentMessageId = '', process } = options || {};
     if (retry > 3){
-      throw  new HttpException(`[parentMessageId]:${options.parentMessageId}  [prompt]:"${prompt}", 请求三次报错`, 500);
+      return {
+        code: 50001,
+        msg: `[parentMessageId]:${options.parentMessageId}  [prompt]:"${prompt}", 请求三次报错`
+      }
     }
     try {
       this.logger.log(`start use ChatGPTAPI fech  chatgpt 获取内容 [parentMessageId]: ${parentMessageId}...`);

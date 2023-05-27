@@ -4,7 +4,7 @@ WORKDIR /app
 COPY ./node_modules /app/node_modules 
 COPY ./package.json /app/package.json 
 COPY ./dist /app/dist 
-COPY ./.env ./
+# COPY ./.env ./
 
 
 # 运行
