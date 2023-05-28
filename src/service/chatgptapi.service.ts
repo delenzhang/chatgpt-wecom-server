@@ -65,7 +65,7 @@ export class ChatGPTAPIService {
     }
     this.api = this.apis[this.cur]
     try {
-      this.logger.log(`start: use [OPENAI_API_KEY]: ${this.api.apiKey} ChatGPTAPI ${retry} times fech chatgpt 获取内容 [parentMessageId]: ${parentMessageId}...`);
+      this.logger.log(`【【【start】】】: use [OPENAI_API_KEY]: ${this.api.apiKey} ChatGPTAPI ${retry} times fech chatgpt 获取内容 [parentMessageId]: ${parentMessageId}...`);
       const res = await this.api.sendMessage(prompt, {
         parentMessageId,
         onProgress: (partialResponse) => {
@@ -73,7 +73,7 @@ export class ChatGPTAPIService {
         },
         timeoutMs: 3*1000
       });
-      this.logger.log(`success: [OPENAI_API_KEY]: ${this.api.apiKey} ChatGPTAPI ${retry} times fech chatgpt 获取内容 ${res.id}`);
+      this.logger.log(`【【【start】】】: [OPENAI_API_KEY]: ${this.api.apiKey} ChatGPTAPI ${retry} times fech chatgpt 获取内容 ${res.id}`);
       return res;
     } catch (error) {
       this.logger.error(`[OPENAI_API_KEY]: ${this.api.apiKey} chatgpt sendMessage error`)
