@@ -80,10 +80,8 @@ export class ChatGPTAPIService {
       return data;
     }
   }
-  handleGptSendMessageError(err:string) {
-     if (err.includes('ChatGPT error 401')) {
-        return 401;
-     }
+  handleGptSendMessageError(err) {
+     console.log(err)
      return 200;
   }
 }
