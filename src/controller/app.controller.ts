@@ -40,9 +40,6 @@ export class AppController {
         parentMessageId,
       },
     });
-    // 当前的messageId
-    const { id } = response;
-    this.logger.log(`当前 [id]:${id} 代理请求 [parentMessageId]:${response.parentMessageId}`)
     return response;
   }
 }
