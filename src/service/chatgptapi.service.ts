@@ -4,7 +4,7 @@
  */
 
 import { HttpException, Injectable, Logger } from '@nestjs/common';
-import { ChatGPTAPI, ChatMessage } from 'chatgpt';
+import { ChatGPTAPI,ChatGPTError, ChatMessage } from 'chatgpt';
 // import { setupProxy } from './utils.js';
 
 interface MessageOptions {
@@ -26,37 +26,48 @@ interface MessageOptions {
 @Injectable()
 export class ChatGPTAPIService {
   api: ChatGPTAPI;
-  OPENAI_API_KEY: string
   private readonly logger = new Logger(ChatGPTAPIService.name);
 
   async onModuleInit() {
-    await this.initAPI();
+    this.init();
   }
-
+  apis: ChatGPTAPI[] = []
+  preAPIKEY = 'sk-'
+  cur = 0
+  init() {
+    if (!process.env.OPENAI_API_KEY) {
+      this.logger.error(`process.env.OPENAI_API_KEY donot exit`)
+      return
+    }
+    const keys = process.env.OPENAI_API_KEY.split(',') || []
+    keys.forEach((key, index) => {
+      this.apis[index] = new ChatGPTAPI({
+        apiKey: this.preAPIKEY + key,
+        debug: false,
+        completionParams: {
+          model: 'text-davinci-003',
+          "temperature": 0,
+          "top_p": 1,
+        }
+      });
+    })
+  }
   async initAPI() {
-    const options = {
-      // fetch: null,
-    };
     // setupProxy(options);
     this.logger.log('current OPENAI_API_KEY is ', process.env.OPENAI_API_KEY)
-    this.OPENAI_API_KEY = process.env.OPENAI_API_KEY
-    this.api = new ChatGPTAPI({
-      apiKey: process.env.OPENAI_API_KEY,
-      debug: false,
-      ...options,
-    });
+    this.api = this.apis[this.cur]
   }
   async sendMessage({ prompt = '', options }: MessageOptions, retry: number = 0) {
     const { parentMessageId = '', process } = options || {};
-    if (retry > 3){
-      this.logger.log(`error OPENAI_API_KEY:  ${this.OPENAI_API_KEY}`);
+    if (retry > this.apis.length){
       return {
         code: 50001,
-        msg: `[parentMessageId]:${options.parentMessageId}  [prompt]:"${prompt}", 请求三次报错`
+        msg: `[parentMessageId]:${options.parentMessageId}  [prompt]:"${prompt}", AI 累了，要休息一分钟分钟，请稍后再问吧！`
       }
     }
+    this.initAPI()
     try {
-      this.logger.log(`start use ChatGPTAPI fech  chatgpt 获取内容 [parentMessageId]: ${parentMessageId}...`);
+      this.logger.log(`[OPENAI_API_KEY]: ${this.api.apiKey} start use ChatGPTAPI fech  chatgpt 获取内容 [parentMessageId]: ${parentMessageId}...`);
       const res = await this.api.sendMessage(prompt, {
         parentMessageId,
         onProgress: (partialResponse) => {
@@ -64,24 +75,28 @@ export class ChatGPTAPIService {
         },
         timeoutMs: 3*1000
       });
-      this.logger.log(`end use ChatGPTAPI fech chatgpt 获取内容 ${res.id}`);
+      this.logger.log(`[OPENAI_API_KEY]: ${this.api.apiKey} end use ChatGPTAPI fech chatgpt 获取内容 ${res.id}`);
       return res;
     } catch (error) {
-      this.logger.error(`chatgpt sendMessage error`, typeof error, error)
-      switch(this.handleGptSendMessageError(error)) {
-         case 401:
-          break;
-         default:
-          const data = await this.sendMessage({prompt, options}, retry+1)
-          return data;
-      }
-      
+      this.logger.error(`[OPENAI_API_KEY]: ${this.api.apiKey} chatgpt sendMessage error`)
+      console.log(error)
+      this.handleGptSendMessageError(error)
       const data = await this.sendMessage({prompt, options}, retry+1)
       return data;
     }
   }
-  handleGptSendMessageError(err) {
-     console.log(err)
+  addCur() {
+    this.cur += 1
+    if (this.cur == this.apis.length) {
+     this.cur = 0
+    }
+  }
+  handleGptSendMessageError(err: ChatGPTError) {
+     // Too Many Requests
+     if (err.statusCode == 429) {
+       this.addCur
+       return err.statusCode
+     }
      return 200;
   }
 }
