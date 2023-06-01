@@ -3,7 +3,9 @@ services:
   chatgpt:
     image: chatgpt-wecom-server
     ports:
-      - "3000:3000"
+      - "8080:8080"
+    env_file:
+      - .env
     # environment:
       # # API 的 Secret key
       # - OPENAI_API_KEY=XXX

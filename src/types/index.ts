@@ -10,3 +10,9 @@ export enum WecomErrorCode {
   // token不合法
   token_invaild = 40014
 }
+
+export interface IRequestData {
+  question: string
+  parentMessageId?: string
+  user: string
+}
