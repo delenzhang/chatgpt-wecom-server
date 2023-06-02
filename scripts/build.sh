@@ -8,6 +8,9 @@ echo "Attention: This script should only be executed in generated deploy folder.
 pnpm i
 pnpm build
 
+docker rmi $pkgName:latest
+docker rmi $pkgName:$pkgVersion
+
 
 if [[ $# > 0 ]]; then
     export DOCKER_CLI_EXPERIMENTAL=enabled

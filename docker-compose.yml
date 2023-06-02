@@ -6,6 +6,7 @@ services:
       - "8080:8080"
     env_file:
       - .env
+    container_name: chatgpt-wecom-server
     # environment:
       # # API 的 Secret key
       # - OPENAI_API_KEY=XXX
