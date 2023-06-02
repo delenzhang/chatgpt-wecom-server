@@ -46,7 +46,7 @@ export class ChatGPTAPIService {
         debug: false,
         apiBaseUrl: "https://api.openai.com/v1",
         completionParams: {
-          model: 'gpt-3.5-turbo-0301'
+          model: 'gpt-3.5-turbo'
         }
       });
     })
