@@ -33,7 +33,7 @@ export class AppController {
 
     // this.replyUserV2({ message, touser });
     // 这里怎么返回都行，只要 http 的状态码返回 200 就行了
-    this.logger.log(`开始将【${user}】的问题 【question】:【${question}】 , 询问 chatgpt 内容 .` + parentMessageId ? `使用上一次问题的[parentMessageId]:【${parentMessageId||'-'}】` : '')
+    this.logger.log(`开始将【${user}】的问题 【question】:【${question}】 , 询问 chatgpt 内容 . 使用上一次问题的[parentMessageId]:【${parentMessageId||'-'}】`)
     const response = await this.chatGPTAPI.sendMessage({
       prompt: question,
       options: {
