@@ -67,7 +67,7 @@ export class ChatGPTAPIService {
     try {
       this.logger.log(`【【【start】】】: use [OPENAI_API_KEY]: ${this.api.apiKey} ChatGPTAPI ${retry} times fech chatgpt 获取内容 [parentMessageId]: ${parentMessageId}...`);
       const res = await this.api.sendMessage(prompt, {
-        parentMessageId,
+        parentMessageId: retry === 0 ? parentMessageId : '',
         onProgress: (partialResponse) => {
           process?.(partialResponse);
         },
