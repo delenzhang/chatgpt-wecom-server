@@ -27,6 +27,7 @@ export class AppController {
     // const data = await this.appService.getMessage(query, xmlData);
     // const { message = '', touser = '' } = data;
     if (!data.question || !data.user) {
+      this.logger.error(" >>>>>>>>>> post data error ", data)
       throw  new HttpException('body params error', 500);
     }
     const {parentMessageId, question, user } = data;
