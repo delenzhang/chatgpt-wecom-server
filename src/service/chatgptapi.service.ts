@@ -58,7 +58,7 @@ export class ChatGPTAPIService {
   async sendMessage({ prompt = '', options }: MessageOptions, retry: number = 0) {
     const { parentMessageId = '', process } = options || {};
     if (retry >= this.apis.length){
-      this.logger.log("超过请求次数，请求失败.", prompt)
+      this.logger.log(`超过请求次数，请求失败. 当前【prompt】：${prompt}`)
       return {
         code: 50001,
         msg: `很抱歉不能回答您询问的"${prompt}", AI 累了，要休息一分钟，请稍后再问吧`
