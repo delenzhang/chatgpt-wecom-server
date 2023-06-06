@@ -95,7 +95,6 @@ export class ChatGPTAPIService {
         },
         timeoutMs: 60*1000
       });
-      this.logger.log("prompt: ", prompt, "parentMessageId:", parentMessageId, "answer: ", res)
       this.logger.log(`【【【end】】】: [OPENAI_API_KEY]: ${this.api.apiKey} ChatGPTAPI ${retry} times fech chatgpt 获取内容 ${res.id}`);
       return res;
     } catch (error) {
