@@ -60,8 +60,29 @@ export class ChatGPTAPIService {
     if (retry >= this.apis.length){
       this.logger.log(`超过请求次数，请求失败. 当前【prompt】：${prompt}`)
       return {
-        code: 50001,
-        msg: `很抱歉不能回答您询问的"${prompt}", AI 累了，要休息一分钟，请稍后再问吧`
+        "role": "assistant",
+        "id": "",
+        "parentMessageId": "",
+        "text": `很抱歉不能回答您询问的【${prompt}】, 我有点累了，要休息一分钟，请稍后再来问吧`,
+        "detail": {
+            "id": "",
+            "object": "chat.completion.chunk",
+            "created": +new Date(),
+            "model": "",
+            "choices": [
+                {
+                    "delta": {},
+                    "index": 0,
+                    "finish_reason": "stop"
+                }
+            ],
+            "usage": {
+                "prompt_tokens": 0,
+                "completion_tokens": 0,
+                "total_tokens": 0,
+                "estimated": true
+            }
+        }
       }
     }
     this.api = this.apis[this.cur]
