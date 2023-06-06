@@ -58,7 +58,7 @@ export class ChatGPTAPIService {
   async sendMessage({ prompt = '', options }: MessageOptions, retry: number = 0) {
     const { parentMessageId = '', process } = options || {};
     if (retry >= this.apis.length){
-      this.logger.log(`超过请求次数，请求失败. 当前【prompt】：${prompt}`)
+      this.logger.log(`超过请求次数，请求失败, 不扣费用. 当前【prompt】：${prompt}`)
       return {
         "role": "assistant",
         "id": "",
@@ -93,7 +93,7 @@ export class ChatGPTAPIService {
         onProgress: (partialResponse) => {
           process?.(partialResponse);
         },
-        timeoutMs: 10*1000
+        timeoutMs: 60*1000
       });
       this.logger.log("prompt: ", prompt, "parentMessageId:", parentMessageId, "answer: ", res)
       this.logger.log(`【【【end】】】: [OPENAI_API_KEY]: ${this.api.apiKey} ChatGPTAPI ${retry} times fech chatgpt 获取内容 ${res.id}`);
