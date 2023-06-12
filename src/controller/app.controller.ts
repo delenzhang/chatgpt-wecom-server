@@ -40,7 +40,7 @@ export class AppController {
       options: {
         parentMessageId,
       },
-    });
+    }, user);
     this.logger.log(`>>>> 【end】将【${user}】的问题 【question】:【${question}】, [parentMessageId]:${parentMessageId}, [response]:`, response)
     return response;
   }
