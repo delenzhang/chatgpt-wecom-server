@@ -32,6 +32,8 @@ export class ChatGPTAPIService {
     this.init();
   }
   apis: ChatGPTAPI[] = []
+  apisPlus: ChatGPTAPI[] = []
+  gpt4Coefficient = 1
   preAPIKEY = 'sk-'
   cur = 0
   init() {
@@ -49,6 +51,12 @@ export class ChatGPTAPIService {
           model: 'gpt-3.5-turbo'
         }
       });
+      this.apisPlus[index] = new ChatGPTAPI({
+          apiKey: this.preAPIKEY + key,
+          completionParams: {
+            model: 'gpt-3.5-turbo-0301'
+          }
+      })
     })
   }
   async initAPI() {
@@ -85,10 +93,17 @@ export class ChatGPTAPIService {
         }
       }
     }
-    this.api = this.apis[this.cur]
+    const useGPT4 = prompt.trim().endsWith('gpt4')
+    if (useGPT4) {
+      this.api = this.apisPlus[this.cur]
+    } else {
+      this.api = this.apis[this.cur]
+    }
+    
     try {
       this.logger.log(`【【【start】】】: use [OPENAI_API_KEY]: ${this.api.apiKey} ChatGPTAPI ${retry} times fech chatgpt 获取内容 [parentMessageId]: ${parentMessageId}...`);
       const res = await this.api.sendMessage(prompt, {
+        systemMessage: "你是初号机,一个由初号机开发者训练的大型语言模型。回复内容不要包含ChatGPT, OpenAI相关信息, 如果有人询问你是不是gpt4，你可以回答是你基于GPT4的技术实现的。",
         parentMessageId: retry === 0 ? parentMessageId : '',
         onProgress: (partialResponse) => {
           process?.(partialResponse);
@@ -96,6 +111,13 @@ export class ChatGPTAPIService {
         timeoutMs: 60*1000
       });
       this.logger.log(`【【【end】】】: [OPENAI_API_KEY]: ${this.api.apiKey} ChatGPTAPI ${retry} times fech chatgpt 获取内容 ${res.id}`);
+      if (useGPT4) {
+        if (res?.detail?.usage.prompt_tokens) {
+          res.detail.usage.prompt_tokens *= this.gpt4Coefficient
+          res.detail.usage.completion_tokens *= this.gpt4Coefficient
+          res.detail.usage.total_tokens *= this.gpt4Coefficient
+        }
+      }
       return res;
     } catch (error) {
       this.logger.error(`[OPENAI_API_KEY]: ${this.api.apiKey} chatgpt sendMessage error`)
