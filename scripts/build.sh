@@ -7,9 +7,11 @@ echo "Attention: This script should only be executed in generated deploy folder.
 
 pnpm i
 pnpm build
-
+echo "开始停止并删除container,image..."
+docker stop chatgpt-wecom-server && docker rm chatgpt-wecom-server
 docker rmi $pkgName:latest
-
+docker rmi $pkgName:$pkgVersion
+echo "停止并删除container... 完毕"
 
 if [[ $# > 0 ]]; then
     export DOCKER_CLI_EXPERIMENTAL=enabled
