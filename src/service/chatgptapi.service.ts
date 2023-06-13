@@ -27,7 +27,7 @@ interface APIInst {
   instance: ChatGPTAPI;
   maxActive: number;
   active: number;
-  parentMessageId: string;
+  parentMessageId?: string
 }
 
 @Injectable()
@@ -47,7 +47,7 @@ export class ChatGPTAPIService {
   initChatGpt(key, index) {
     const inst = new ChatGPTAPI({
       apiKey: this.preAPIKEY + key,
-      debug: false,
+      debug: true,
       apiBaseUrl: "https://api.openai.com/v1",
       completionParams: {
         model: 'gpt-3.5-turbo'
@@ -65,29 +65,26 @@ export class ChatGPTAPIService {
 
   init() {
     if (!process.env.OPENAI_API_KEYS) {
-      this.logger.error(`process.env.OPENAI_API_KEYS donot exit`)
-      return
+      this.logger.error(`OPENAI_API_KEYS donot exit`)
     }
     let index = 0
-    const keys = process.env.OPENAI_API_KEYS.split(',') || []
+    const keys = process.env.OPENAI_API_KEYS?.trim().split(',') || []
     keys.forEach((key) => {
       this.apis[index] = {
         maxActive: 1,
         active: 0,
         instance: this.initChatGpt(key, index),
-        parentMessageId: ""
       } as APIInst
       index++;
     })
 
-    const payKeys = process.env.PAY_OPENAI_API_KEYS.split(',') || []
+    const payKeys = process.env.PAY_OPENAI_API_KEYS?.trim().split(',') || []
     payKeys.forEach((key) => {
       this.apis[index] = {
-        maxInstances: 500,
+        maxActive: 500,
         active: 0,
         instance: this.initChatGpt(key, index),
-        parentMessageId: ""
-      } as any
+      } as APIInst
       index++;
     })
 
@@ -97,8 +94,10 @@ export class ChatGPTAPIService {
       this.apis.forEach(item => {
         item.active = 0;
       })
-      this.logger.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> 结束清空用户历史，重新计算active", this.apis)
-    }, 1000 * 60 * 60 * 24)
+      console.log(this.apis)
+      this.logger.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> 结束清空用户历史，重新计算active")
+      
+    }, 1000 * 60 * 60 * 1)
   }
   sortAPIInst() {
     this.apis.sort((a, b) => {
@@ -115,20 +114,22 @@ export class ChatGPTAPIService {
   }
   initAPI(user: string = "") {
     const apiInst = this.apis[0]
-    this.userAPIMap.set(user, apiInst);
     apiInst.active++;
     this.sortAPIInst()
-    return apiInst
+    return {
+      ...apiInst,
+      parentMessageId: ''
+    }
   }
   async sendMessage({ prompt = '', options }: MessageOptions, user: string = "") {
     const { process } = options || {};
-    let api;
+    let api: APIInst;
     if (this.userAPIMap.has(user)) {
       api = this.userAPIMap.get(user);
     } else {
       api = this.initAPI(user)
+      this.userAPIMap.set(user, api);
     }
-    console.log("测试看的>>>>>>", this.apis)
     const parentMessageId = api.parentMessageId;
     try {
       this.logger.log(`【【【start】】】: use [OPENAI_API_KEY]: ${api.instance.apiKey} ChatGPTAPI user: ${user}  fech chatgpt 获取内容 [parentMessageId]: ${parentMessageId}...`);
@@ -136,6 +137,10 @@ export class ChatGPTAPIService {
         systemMessage: "你是初号机,一个由初号机开发者训练的大型语言模型。回复内容不要包含ChatGPT, OpenAI相关信息, 如果有人询问你是不是gpt4，你可以回答是你基于GPT4的技术实现的。",
         // systemMessage: "使用第一次的system 描述",
         parentMessageId: parentMessageId ? parentMessageId : '',
+        // name: user,
+        completionParams: {
+          user,
+        },
         onProgress: (partialResponse) => {
           process?.(partialResponse);
         },

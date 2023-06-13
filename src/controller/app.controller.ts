@@ -37,11 +37,8 @@ export class AppController {
     this.logger.log(`>>>>【start】将【${user}】的问题 【question】:【${question}】 , 询问 chatgpt 内容 `)
     const response = await this.chatGPTAPI.sendMessage({
       prompt: question,
-      options: {
-        parentMessageId,
-      },
     }, user);
-    this.logger.log(`>>>> 【end】将【${user}】的问题 【question】:【${question}】, [response]:`, response)
+    this.logger.log(`>>>> 【end】将【${user}】的问题 【question】:【${question}】`)
     return response;
   }
 }
