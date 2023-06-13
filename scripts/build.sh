@@ -9,7 +9,6 @@ pnpm i
 pnpm build
 
 docker rmi $pkgName:latest
-docker rmi $pkgName:$pkgVersion
 
 
 if [[ $# > 0 ]]; then
